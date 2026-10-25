@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>A Birthday Love Letter For You ❤️💌 | A Special Birthday Surprise</title>
+  <meta name="description" content="A romantic, handwritten birthday love letter experience with an interactive unfolding envelope, romantic background music, and a special heart surprise.">
+  <meta name="theme-color" content="#0D0D0D">
+
+  <!-- Google Fonts for Romantic Calligraphy and Elegant Editorial Serif (with system fallbacks) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Dancing+Script:wght@400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+  <!-- Ambient Background Canvas for Floating Hearts & Sparkles -->
+  <canvas id="ambient-canvas" aria-hidden="true"></canvas>
+
+  <!-- Ambient Cinematic Glows & Vignette -->
+  <div class="ambient-glow glow-1" aria-hidden="true"></div>
+  <div class="ambient-glow glow-2" aria-hidden="true"></div>
+  <div class="cinematic-vignette" aria-hidden="true"></div>
+
+  <!-- Background Music Audio Element -->
+  <audio id="bg-music" src="love-song.mp3" preload="auto" loop></audio>
+
+  <!-- Floating Audio Controls (Top Right) -->
+  <aside class="floating-controls" aria-label="Controls">
+    <!-- Music Button -->
+    <button id="music-btn" class="glass-btn music-btn" aria-label="Toggle background music" title="Toggle romantic music">
+      <span class="music-icon-wrap" aria-hidden="true">
+        <svg class="music-note-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+        </svg>
+        <span class="equalizer-bars" aria-hidden="true">
+          <span class="eq-bar bar-1"></span>
+          <span class="eq-bar bar-2"></span>
+          <span class="eq-bar bar-3"></span>
+        </span>
+      </span>
+      <span class="music-btn-label" id="music-status-text">Music Off</span>
+    </button>
+
+    <!-- Skip Animation Button (Appears during unfolding & typing) -->
+    <button id="skip-btn" class="glass-btn skip-btn hidden" aria-label="Skip letter animation" title="Show complete letter immediately">
+      <span>Skip Animation ⚡</span>
+    </button>
+  </aside>
+
+  <!-- Toast Notification for Music Feedback -->
+  <div id="toast" class="toast-message" role="status" aria-live="polite"></div>
+
+  <!-- MAIN EXPERIENCE CONTAINER -->
+  <main id="app-container" class="app-container">
+
+    <!-- ========================================================
+         SCENE ONE: THE ROMANTIC ENVELOPE 💌
+         ======================================================== -->
+    <section id="envelope-scene" class="scene envelope-scene active" aria-label="Interactive Envelope">
+      <div class="scene-content">
+        <!-- Floating Ambient Tag / Header -->
+        <div class="envelope-header-tag">
+          <span class="sparkle-icon">✨</span>
+          <span class="tag-text">Special Birthday Delivery</span>
+          <span class="sparkle-icon">✨</span>
+        </div>
+
+        <!-- 3D Realistic Romantic Envelope -->
+        <div class="envelope-wrapper" id="envelope-wrapper">
+          <div class="envelope-glow-aura" aria-hidden="true"></div>
+
+          <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Envelope for someone special. Tap to open.">
+            <!-- Envelope Back Interior (Deep Cherry Velvet) -->
+            <div class="envelope-back">
+              <div class="envelope-interior-pattern"></div>
+            </div>
+
+            <!-- Letter Inside (Peeking out before sliding) -->
+            <div class="envelope-letter-insert" id="letter-insert">
+              <div class="letter-insert-preview">
+                <span class="letter-mini-heart">❤️</span>
+                <span class="letter-mini-text">To My Favourite Person</span>
+              </div>
+            </div>
+
+            <!-- Envelope Pocket Layers (Left, Right, Bottom) -->
+            <div class="envelope-flap flap-left"></div>
+            <div class="envelope-flap flap-right"></div>
+            <div class="envelope-flap flap-bottom">
+              <!-- Envelope Front Calligraphy -->
+              <div class="envelope-calligraphy">
+                <span class="calligraphy-to">To Someone Special ♡</span>
+              </div>
+            </div>
+
+            <!-- Top Flap (Opens Upward in 3D) -->
+            <div class="envelope-flap flap-top" id="flap-top">
+              <div class="flap-top-inner"></div>
+            </div>
+
+            <!-- Heart-Shaped Wax Seal -->
+            <div class="wax-seal" id="wax-seal" aria-hidden="true">
+              <div class="wax-seal-drips"></div>
+              <div class="wax-seal-body">
+                <div class="wax-seal-rim"></div>
+                <div class="wax-seal-emboss">
+                  <svg class="seal-heart-svg" viewBox="0 0 32 32" width="22" height="22">
+                    <path d="M16 28.5S2 19.8 2 10.4C2 5.8 5.7 2 10.3 2c2.8 0 5.2 1.4 6.7 3.5 1.5-2.1 3.9-3.5 6.7-3.5 4.6 0 8.3 3.8 8.3 8.4 0 9.4-14 18.1-14 18.1z" fill="currentColor"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Envelope Captions & Instructions -->
+        <div class="envelope-captions">
+          <p class="envelope-subtitle">A little birthday surprise awaits...</p>
+          <div class="envelope-instruction">
+            <span class="pulse-ring"></span>
+            <span class="instruction-text">Tap the envelope to open 💌</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SCENE TWO & THREE: THE LETTER UNFOLDS & FULL LETTER 📜❤️
+         ======================================================== -->
+    <section id="letter-scene" class="scene letter-scene hidden" aria-label="Birthday Love Letter">
+      <div class="letter-viewport">
+
+        <!-- 3D Unfolding Paper Simulation Layer -->
+        <div class="unfolding-stage" id="unfolding-stage" aria-hidden="true">
+          <div class="paper-fold fold-top" id="fold-top">
+            <div class="paper-crease-shadow"></div>
+          </div>
+          <div class="paper-fold fold-middle" id="fold-middle">
+            <div class="paper-crease-shadow"></div>
+          </div>
+          <div class="paper-fold fold-bottom" id="fold-bottom">
+            <div class="paper-crease-shadow"></div>
+          </div>
+        </div>
+
+        <!-- The Physical Stationery Paper Sheet -->
+        <article class="stationery-paper" id="stationery-paper">
+          <!-- Subtle Paper Grain & Shadow Highlights -->
+          <div class="paper-grain-overlay" aria-hidden="true"></div>
+          <div class="paper-inner-border" aria-hidden="true"></div>
+
+          <!-- Botanical Corner Rose Flourishes (Pure SVGs) -->
+          <svg class="corner-rose top-left" viewBox="0 0 100 100" width="70" height="70" aria-hidden="true">
+            <path d="M10,90 Q15,40 45,25 Q65,15 90,10 Q50,30 35,55 Q20,80 10,90 Z" fill="none" stroke="#C1123F" stroke-width="1.4" opacity="0.45"/>
+            <path d="M25,25 C15,15 40,5 35,25 C30,45 55,35 45,55" fill="none" stroke="#800020" stroke-width="1.2" opacity="0.4"/>
+            <circle cx="28" cy="22" r="6" fill="#FADADD" opacity="0.55"/>
+            <circle cx="28" cy="22" r="3" fill="#C1123F" opacity="0.6"/>
+            <path d="M55,18 Q70,22 65,35 Q50,30 55,18 Z" fill="#F8C8DC" opacity="0.45"/>
+            <circle cx="15" cy="55" r="2" fill="#E75480" opacity="0.6"/>
+          </svg>
+
+          <svg class="corner-rose top-right" viewBox="0 0 100 100" width="70" height="70" aria-hidden="true">
+            <path d="M90,90 Q85,40 55,25 Q35,15 10,10 Q50,30 65,55 Q80,80 90,90 Z" fill="none" stroke="#C1123F" stroke-width="1.4" opacity="0.45"/>
+            <path d="M75,25 C85,15 60,5 65,25 C70,45 45,35 55,55" fill="none" stroke="#800020" stroke-width="1.2" opacity="0.4"/>
+            <circle cx="72" cy="22" r="6" fill="#FADADD" opacity="0.55"/>
+            <circle cx="72" cy="22" r="3" fill="#C1123F" opacity="0.6"/>
+            <path d="M45,18 Q30,22 35,35 Q50,30 45,18 Z" fill="#F8C8DC" opacity="0.45"/>
+            <circle cx="85" cy="55" r="2" fill="#E75480" opacity="0.6"/>
+          </svg>
+
+          <svg class="corner-rose bottom-left" viewBox="0 0 100 100" width="60" height="60" aria-hidden="true">
+            <path d="M10,10 Q15,60 45,75 Q65,85 90,90 Q50,70 35,45 Q20,20 10,10 Z" fill="none" stroke="#C1123F" stroke-width="1.2" opacity="0.35"/>
+            <circle cx="30" cy="75" r="4" fill="#FADADD" opacity="0.5"/>
+          </svg>
+
+          <svg class="corner-rose bottom-right" viewBox="0 0 100 100" width="60" height="60" aria-hidden="true">
+            <path d="M90,10 Q85,60 55,75 Q35,85 10,90 Q50,70 65,45 Q80,20 90,10 Z" fill="none" stroke="#C1123F" stroke-width="1.2" opacity="0.35"/>
+            <circle cx="70" cy="75" r="4" fill="#FADADD" opacity="0.5"/>
+          </svg>
+
+          <!-- Stationery Header / Vintage Stamp & Date -->
+          <header class="letter-header">
+            <div class="vintage-stamp">
+              <span class="stamp-border"></span>
+              <span class="stamp-icon">💌</span>
+              <span class="stamp-text">LOVE MAIL</span>
+              <span class="stamp-sub">SPECIAL DELIVERY</span>
+            </div>
+
+            <!-- Customizable Date -->
+            <div class="letter-date-wrap">
+              <span class="quill-icon" aria-hidden="true">🪶</span>
+              <time class="letter-date" id="letter-date" datetime="2026-10-25">October 25, 2026</time>
+            </div>
+          </header>
+
+          <!-- Letter Main Content Body -->
+          <div class="letter-body">
+
+            <!-- Greeting (First revealed) -->
+            <div class="reveal-item greeting-wrap" id="greeting-item">
+              <h2 class="letter-greeting" id="letter-greeting">
+                <span class="greeting-text">To My Favourite Person, ♡</span>
+              </h2>
+            </div>
+
+            <!-- Birthday Heading -->
+            <div class="reveal-item heading-wrap" id="heading-item">
+              <h1 class="letter-heading" id="letter-heading">
+                Happy Birthday, My Favourite Human! ❤️
+              </h1>
+              <div class="heading-flourish" aria-hidden="true">
+                <span class="flourish-line"></span>
+                <span class="flourish-heart">❦</span>
+                <span class="flourish-line"></span>
+              </div>
+            </div>
+
+            <!-- Paragraphs (Staggered handwritten appearance) -->
+            <div class="letter-paragraphs" id="letter-paragraphs">
+              <!-- Paragraph 1 -->
+              <p class="reveal-item letter-p" data-p-index="1">
+                Today is all about you, and I wish I could put into words just how special you are.
+              </p>
+
+              <!-- Paragraph 2 -->
+              <p class="reveal-item letter-p" data-p-index="2">
+                Some people enter our lives and make ordinary moments feel extraordinary. You are one of those people. The little conversations, the silly memories, the unexpected smiles, and all the moments we share mean more than words can explain.
+              </p>
+
+              <!-- Paragraph 3 -->
+              <p class="reveal-item letter-p" data-p-index="3">
+                On your birthday, I hope you remember how special you are and how much happiness you bring into the lives of the people around you.
+              </p>
+
+              <!-- Paragraph 4 -->
+              <p class="reveal-item letter-p" data-p-index="4">
+                I hope this new chapter brings you beautiful memories, peaceful days, exciting adventures, and countless reasons to smile.
+              </p>
+
+              <!-- Paragraph 5 -->
+              <p class="reveal-item letter-p" data-p-index="5">
+                If I could wish one thing for you, it would be that you always see yourself with the same kindness and love that you deserve.
+              </p>
+
+              <!-- Paragraph 6 -->
+              <p class="reveal-item letter-p" data-p-index="6">
+                Today, tomorrow, and every day after this, I hope life gives you the sweetest surprises and the happiest moments.
+              </p>
+
+              <!-- Paragraph 7 -->
+              <p class="reveal-item letter-p" data-p-index="7">
+                And if this little letter makes you smile even for a second, then it has already done something beautiful. ♡
+              </p>
+            </div>
+
+            <!-- Letter Sign-off & Signature -->
+            <footer class="letter-footer">
+              <div class="reveal-item sign-item sign-1" id="sign-1">
+                <p class="letter-closing-highlight">Happy Birthday Once Again! ❤️</p>
+              </div>
+              <div class="reveal-item sign-item sign-2" id="sign-2">
+                <p class="letter-closing-note">Sending you all my love, always.</p>
+              </div>
+              <div class="reveal-item sign-item sign-3" id="sign-3">
+                <p class="letter-yours">Yours, with love,</p>
+              </div>
+
+              <!-- ==============================================
+                   CUSTOMIZE SENDER NAME HERE
+                   Replace [YOUR NAME] below with your actual name
+                   ============================================== -->
+              <div class="reveal-item sign-item sign-4" id="sign-4">
+                <p class="letter-signature-name" id="sender-signature-name">[YOUR NAME] ♡</p>
+              </div>
+            </footer>
+
+            <!-- Letter Bottom Teaser Section for Final Surprise -->
+            <div class="reveal-item surprise-teaser-container" id="surprise-teaser">
+              <div class="teaser-divider" aria-hidden="true">
+                <span class="teaser-line"></span>
+                <span class="teaser-heart-icon">💖</span>
+                <span class="teaser-line"></span>
+              </div>
+
+              <p class="surprise-teaser-text">
+                Wait... there's one more little thing for you ♡
+              </p>
+
+              <button id="open-surprise-btn" class="romantic-invitation-btn" aria-label="Open your final birthday surprise">
+                <span class="btn-shimmer" aria-hidden="true"></span>
+                <span class="btn-text">Open Your Little Surprise ❤️</span>
+              </button>
+            </div>
+
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SCENE FIVE: THE FINAL HEART SURPRISE ❤️🔥
+         ======================================================== -->
+    <section id="surprise-modal" class="surprise-modal hidden" aria-modal="true" role="dialog" aria-label="Final Birthday Surprise">
+      <div class="surprise-backdrop" id="surprise-backdrop"></div>
+
+      <!-- Surprise Container with Glowing Animated Heart & Card -->
+      <div class="surprise-wrapper" id="surprise-wrapper">
+
+        <!-- Glowing Heart Centerpiece -->
+        <div class="heart-centerpiece-container" id="heart-centerpiece">
+          <div class="heart-halo-glow" aria-hidden="true"></div>
+          <div class="heart-pulse-waves" aria-hidden="true">
+            <span class="wave wave-1"></span>
+            <span class="wave wave-2"></span>
+            <span class="wave wave-3"></span>
+          </div>
+
+          <!-- Pure CSS / SVG 3D Glowing Heart -->
+          <div class="glowing-beating-heart" id="glowing-beating-heart" aria-hidden="true">
+            <svg class="heart-svg-shape" viewBox="0 0 100 100">
+              <defs>
+                <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#E75480" />
+                  <stop offset="35%" stop-color="#C1123F" />
+                  <stop offset="100%" stop-color="#800020" />
+                </linearGradient>
+                <filter id="heartGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="5" result="glow" />
+                  <feComposite in="SourceGraphic" in2="glow" operator="over" />
+                </filter>
+              </defs>
+              <path d="M50,88 C20,62 5,42 5,26 C5,12 16,3 30,3 C38,3 45,7 50,14 C55,7 62,3 70,3 C84,3 95,12 95,26 C95,42 80,62 50,88 Z" fill="url(#heartGradient)" filter="url(#heartGlow)"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- The Emotional Final Surprise Card -->
+        <div class="surprise-card" id="surprise-card">
+          <div class="surprise-card-inner">
+            <div class="surprise-header-badge">
+              <span class="badge-sparkle">✨</span>
+              <span class="badge-title">One last thing... ♡</span>
+              <span class="badge-sparkle">✨</span>
+            </div>
+
+            <div class="surprise-content-text">
+              <p class="surprise-p1">
+                You deserve all the love, happiness, and beautiful little moments this world has to offer.
+              </p>
+
+              <p class="surprise-p2">
+                No matter how many birthdays come and go, I hope this one leaves you with a memory that makes you smile whenever you think about it.
+              </p>
+
+              <h3 class="surprise-highlight">
+                Happy Birthday, You Beautiful Soul! ❤️
+              </h3>
+
+              <p class="surprise-made-with-love">
+                Made with love, just for you. ♡
+              </p>
+
+              <!-- ==============================================
+                   CUSTOMIZE FINAL SENDER NAME HERE
+                   ============================================== -->
+              <p class="surprise-final-name" id="surprise-sender-name">
+                [YOUR NAME]
+              </p>
+            </div>
+
+            <!-- Return to letter button -->
+            <div class="surprise-action-wrap">
+              <button id="read-again-btn" class="romantic-invitation-btn secondary" aria-label="Read your letter again">
+                <span class="btn-text">Read My Letter Again 💌</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script src="script.js?v=2"></script>
+</body>
+</html>
