@@ -38,17 +38,28 @@ This website provides a realistic experience of receiving a romantic love letter
 
 ## ✏️ How to Customize
 
-All text can be customized directly in `index.html`:
-1. **Recipient Greeting**: Edit line 173 (`To My Favourite Person, ♡`)
-2. **Sender Signature**: Edit line 228 and line 282 (`[YOUR NAME] ♡`)
-3. **Date**: Edit line 164 (`October 25, 2026`)
-4. **Letter Body**: Edit paragraphs inside `<div class="letter-paragraphs">`
-5. **Background Music**: Replace `love-song.mp3` with any MP3 of your choice.
+### 1. Change Typing Speed
+Open [script.js](file:///c:/photoshop/gifting%20business/digital%20business1/script.js) and adjust the `TYPING_CONFIG` values at the top:
+```javascript
+const TYPING_CONFIG = {
+  speed: 28, // Milliseconds per character (e.g., 15 for fast, 28 for default, 50 for slow)
+  pauseBetweenParagraphs: 240, // Pause between paragraphs
+  musicVolume: 0.55 // Continuous background music volume
+};
+```
+
+### 2. Customize Names, Letter Content & Date
+All letter text is written in semantic HTML inside [index.html](file:///c:/photoshop/gifting%20business/digital%20business1/index.html):
+- **Recipient Greeting**: Edit `To My Favourite Person, ♡` inside `#letter-greeting`
+- **Sender Signature**: Edit `[YOUR NAME] ♡` inside `#sender-signature-name` and `#surprise-sender-name`
+- **Date**: Edit `#letter-date`
+- **Letter Body**: Edit paragraphs inside `<div class="letter-paragraphs">`
+- **Background Music**: Replace `love-song.mp3` with any song of your choice (plays automatically in the background)
 
 ---
 
 ## 🚀 How to Run Locally
 
 1. Clone or download this repository.
-2. Open `index.html` in Google Chrome or run with VS Code Live Server.
+2. Open `index.html` in your browser or run with a local web server (e.g. `npx serve .` or VS Code Live Server).
 3. Tap the envelope to experience the opening sequence!

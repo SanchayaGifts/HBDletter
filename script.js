@@ -1,12 +1,50 @@
 /**
+ * ============================================================================
  * AESTHETIC BIRTHDAY LOVE LETTER WEBSITE - INTERACTIVE CONTROLLER
- * Vanilla JavaScript implementation for the complete romantic experience:
+ * ============================================================================
+ * Features:
  * - Ambient Canvas Particle System (floating hearts & twinkling stardust)
- * - 3D Envelope Opening & Realistic Paper Unfolding
- * - Staggered Handwritten Letter Reveal with Skip Animation
- * - Continuous Background Music with graceful Web Audio fallback
- * - Final Heart Surprise & Seamless Return
+ * - 3D Realistic Romantic Envelope Opening with Smooth Letter Elevation
+ * - Character-by-Character Typewriter Effect with Configurable Speed
+ * - Seamless Continuous Background Music (with Web Audio Synth Fallback)
+ * - Interactive Beating Heart Surprise Modal & Smooth Navigation
+ * ============================================================================
  */
+
+// ============================================================================
+// 💌 CONFIGURATION: SPEED & AUDIO SETTINGS
+// You can easily adjust typing speed and pauses here!
+// ============================================================================
+const TYPING_CONFIG = {
+  // Speed in milliseconds per character
+  // Lower number = faster typing | Higher number = slower typing
+  // Recommended options:
+  //   15 = Very Fast
+  //   28 = Natural & Smooth (Default)
+  //   45 = Emotional & Gentle Pace
+  speed: 28,
+
+  // Pause duration (in ms) between paragraphs
+  pauseBetweenParagraphs: 240,
+
+  // Pause duration (in ms) after greeting before birthday title
+  pauseAfterGreeting: 200,
+
+  // Pause duration (in ms) after title before first paragraph
+  pauseAfterHeading: 280,
+
+  // Pause duration (in ms) between signature lines
+  pauseBetweenSignatures: 180,
+
+  // Pause duration (in ms) before final surprise button appears
+  pauseBeforeTeaser: 350,
+
+  // Smoothly auto-scroll on mobile devices to follow active typing
+  autoScroll: true,
+
+  // Continuous background music volume (0.0 to 1.0)
+  musicVolume: 0.55
+};
 
 document.addEventListener('DOMContentLoaded', () => {
   // ========================================================
@@ -14,19 +52,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // ========================================================
   const state = {
     isOpening: false,
-    isUnfolded: false,
-    isRevealing: false,
+    isLetterActive: false,
+    isTyping: false,
     musicPlaying: false,
     usingWebAudioSynth: false,
-    currentScene: 'envelope', // 'envelope' | 'unfolding' | 'letter' | 'surprise'
-    animationTimers: []
+    currentScene: 'envelope', // 'envelope' | 'letter' | 'surprise'
+    animationTimers: [],
+    typingTimeoutId: null
   };
 
   // DOM Elements
   const canvas = document.getElementById('ambient-canvas');
   const bgMusic = document.getElementById('bg-music');
-  const musicBtn = document.getElementById('music-btn');
-  const musicStatusText = document.getElementById('music-status-text');
   const skipBtn = document.getElementById('skip-btn');
   const toastEl = document.getElementById('toast');
 
@@ -34,13 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const envelopeScene = document.getElementById('envelope-scene');
   const envelopeWrapper = document.getElementById('envelope-wrapper');
   const envelope = document.getElementById('envelope');
-  const letterInsert = document.getElementById('letter-insert');
-  const waxSeal = document.getElementById('wax-seal');
 
   const letterScene = document.getElementById('letter-scene');
-  const unfoldingStage = document.getElementById('unfolding-stage');
   const stationeryPaper = document.getElementById('stationery-paper');
-  const revealItems = document.querySelectorAll('.reveal-item');
+  const headingFlourish = document.getElementById('heading-flourish');
+  const surpriseTeaser = document.getElementById('surprise-teaser');
   const openSurpriseBtn = document.getElementById('open-surprise-btn');
 
   // Surprise Modal
@@ -52,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. TOAST NOTIFICATION UTILITY
   // ========================================================
   let toastTimeout = null;
-  function showToast(message, duration = 3500) {
+  function showToast(message, duration = 3000) {
     if (!toastEl) return;
     toastEl.textContent = message;
     toastEl.classList.add('show');
@@ -92,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
       this.opacity = 0.2 + Math.random() * 0.55;
       this.rotation = (Math.random() - 0.5) * 0.6;
       this.rotSpeed = (Math.random() - 0.5) * 0.02;
-      this.hue = Math.random() > 0.6 ? 345 : 355; // romantic pinks and deep roses
+      this.hue = Math.random() > 0.6 ? 345 : 355; // romantic rose hues
     }
 
     update() {
@@ -112,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.globalAlpha = this.opacity;
 
       if (this.isHeart) {
-        // Draw delicate heart shape
         ctx.fillStyle = `hsl(${this.hue}, 85%, 72%)`;
         ctx.shadowColor = `hsl(${this.hue}, 90%, 65%)`;
         ctx.shadowBlur = 8;
@@ -123,7 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.bezierCurveTo(s * 15, s * -2, s * 7, s * -12, 0, s * -3);
         ctx.fill();
       } else {
-        // Draw sparkling stardust particle
         ctx.fillStyle = Math.random() > 0.3 ? '#FFF4E6' : '#FADADD';
         ctx.shadowColor = '#E75480';
         ctx.shadowBlur = 6;
@@ -140,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     particles.push(new Particle());
   }
 
-  function spawnBurstHearts(sourceX, sourceY, count = 18) {
+  function spawnBurstHearts(sourceX, sourceY, count = 22) {
     for (let i = 0; i < count; i++) {
       const p = new Particle();
       p.x = sourceX + (Math.random() - 0.5) * 80;
@@ -150,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
       p.opacity = 0.85;
       p.isHeart = true;
       particles.push(p);
-      if (particles.length > maxParticles + 30) {
+      if (particles.length > maxParticles + 35) {
         particles.shift();
       }
     }
@@ -167,12 +200,12 @@ document.addEventListener('DOMContentLoaded', () => {
   animateCanvas();
 
   // ========================================================
-  // 4. ROMANTIC MUSIC CONTROLLER (AUDIO + WEB AUDIO FALLBACK)
+  // 4. CONTINUOUS BACKGROUND MUSIC SYSTEM
   // ========================================================
   let audioCtx = null;
   let synthInterval = null;
 
-  // Synthesize romantic acoustic music-box chimes if MP3 is missing
+  // Gentle acoustic music-box chimes synthesizer fallback
   function startRomanticSynth() {
     if (state.usingWebAudioSynth) return;
     try {
@@ -182,11 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (audioCtx.state === 'suspended') audioCtx.resume();
 
       state.usingWebAudioSynth = true;
-
-      // Romantic chord notes (F# minor, D major, A major, E major chord arpeggios)
-      const romanticScale = [
-        261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99
-      ];
+      state.musicPlaying = true;
 
       function playChimeNote(freq, delay = 0, gainLevel = 0.12) {
         if (!audioCtx || !state.musicPlaying) return;
@@ -208,7 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
         osc.stop(now + 2.6);
       }
 
-      // Gentle recurring romantic arpeggios
       const chordProgression = [
         [523.25, 659.25, 783.99],
         [440.00, 523.25, 659.25],
@@ -230,126 +258,282 @@ document.addEventListener('DOMContentLoaded', () => {
 
       stepArpeggio();
       synthInterval = setInterval(stepArpeggio, 2400);
-      showToast('Playing gentle romantic melody 🎵');
     } catch (err) {
-      console.warn('Web Audio Synth failed:', err);
+      console.warn('Web Audio Synth initialization error:', err);
     }
   }
 
-  function stopRomanticSynth() {
-    state.usingWebAudioSynth = false;
-    if (synthInterval) clearInterval(synthInterval);
-    if (audioCtx && audioCtx.state === 'running') {
-      audioCtx.suspend();
-    }
-  }
-
-  function updateMusicUI(isPlaying) {
-    state.musicPlaying = isPlaying;
-    if (isPlaying) {
-      musicBtn.classList.add('playing');
-      musicStatusText.textContent = 'Music On';
-    } else {
-      musicBtn.classList.remove('playing');
-      musicStatusText.textContent = 'Music Off';
-    }
-  }
-
-  async function playMusic() {
+  // Attempt playing background audio directly or on user interaction
+  async function startBackgroundMusic() {
     if (state.musicPlaying) return;
 
     if (bgMusic) {
-      bgMusic.volume = 0.55;
+      bgMusic.volume = TYPING_CONFIG.musicVolume;
       try {
         const playPromise = bgMusic.play();
         if (playPromise !== undefined) {
           await playPromise;
-          updateMusicUI(true);
+          state.musicPlaying = true;
+          removeAutoplayListeners();
         }
       } catch (err) {
-        console.info('Audio element playback prevented or file missing:', err.message);
-        // Fallback to pleasant synthesized romantic chime music
-        updateMusicUI(true);
-        startRomanticSynth();
+        // Autoplay policy prevented playback before interaction; listeners will catch first touch
       }
     } else {
-      updateMusicUI(true);
       startRomanticSynth();
+      removeAutoplayListeners();
     }
   }
 
-  function pauseMusic() {
-    if (bgMusic && !bgMusic.paused) {
-      bgMusic.pause();
+  function onFirstUserGesture() {
+    if (!state.musicPlaying) {
+      if (bgMusic) {
+        bgMusic.volume = TYPING_CONFIG.musicVolume;
+        bgMusic.play().then(() => {
+          state.musicPlaying = true;
+          removeAutoplayListeners();
+        }).catch(() => {
+          startRomanticSynth();
+          removeAutoplayListeners();
+        });
+      } else {
+        startRomanticSynth();
+        removeAutoplayListeners();
+      }
     }
-    stopRomanticSynth();
-    updateMusicUI(false);
   }
 
-  function toggleMusic() {
-    if (state.musicPlaying) {
-      pauseMusic();
-      showToast('Music paused ⏸️');
-    } else {
-      playMusic();
-      showToast('Music playing 🎵');
-    }
+  function addAutoplayListeners() {
+    ['pointerdown', 'touchstart', 'click', 'keydown'].forEach((evt) => {
+      window.addEventListener(evt, onFirstUserGesture, { passive: true });
+    });
   }
 
-  musicBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleMusic();
-  });
+  function removeAutoplayListeners() {
+    ['pointerdown', 'touchstart', 'click', 'keydown'].forEach((evt) => {
+      window.removeEventListener(evt, onFirstUserGesture);
+    });
+  }
 
-  // Handle missing audio gracefully without breaking website
+  // Try playing immediately, and register gesture listener for browsers with strict autoplay policies
+  startBackgroundMusic();
+  addAutoplayListeners();
+
   if (bgMusic) {
     bgMusic.addEventListener('error', () => {
-      console.info('Note: love-song.mp3 could not be loaded directly. Switching to romantic ambient music system.');
-      if (state.musicPlaying) {
-        startRomanticSynth();
-      }
+      console.info('Audio source unavailable; using romantic ambient chime synthesizer.');
+      startRomanticSynth();
     });
   }
 
   // ========================================================
-  // 5. ENVELOPE OPENING & LETTER EMERGENCE ANIMATION
+  // 5. CACHING LETTER TEXT & INITIALIZING TYPEWRITER ITEMS
+  // ========================================================
+  const typingItems = [];
+
+  function initTypingItems() {
+    const greetingEl = document.querySelector('#letter-greeting .greeting-text');
+    if (greetingEl) {
+      typingItems.push({
+        container: document.getElementById('greeting-item'),
+        element: greetingEl,
+        fullText: greetingEl.textContent.trim(),
+        pauseAfter: TYPING_CONFIG.pauseAfterGreeting
+      });
+    }
+
+    const headingEl = document.querySelector('#letter-heading');
+    if (headingEl) {
+      typingItems.push({
+        container: document.getElementById('heading-item'),
+        element: headingEl,
+        fullText: headingEl.textContent.trim(),
+        pauseAfter: TYPING_CONFIG.pauseAfterHeading,
+        onComplete: () => {
+          if (headingFlourish) headingFlourish.classList.add('visible');
+        }
+      });
+    }
+
+    const pEls = document.querySelectorAll('.letter-paragraphs .letter-p');
+    pEls.forEach((p) => {
+      typingItems.push({
+        container: p,
+        element: p,
+        fullText: p.textContent.trim(),
+        pauseAfter: TYPING_CONFIG.pauseBetweenParagraphs
+      });
+    });
+
+    const sign1 = document.querySelector('#sign-1 .letter-closing-highlight');
+    if (sign1) {
+      typingItems.push({
+        container: document.getElementById('sign-1'),
+        element: sign1,
+        fullText: sign1.textContent.trim(),
+        pauseAfter: TYPING_CONFIG.pauseBetweenSignatures
+      });
+    }
+
+    const sign2 = document.querySelector('#sign-2 .letter-closing-note');
+    if (sign2) {
+      typingItems.push({
+        container: document.getElementById('sign-2'),
+        element: sign2,
+        fullText: sign2.textContent.trim(),
+        pauseAfter: TYPING_CONFIG.pauseBetweenSignatures
+      });
+    }
+
+    const sign3 = document.querySelector('#sign-3 .letter-yours');
+    if (sign3) {
+      typingItems.push({
+        container: document.getElementById('sign-3'),
+        element: sign3,
+        fullText: sign3.textContent.trim(),
+        pauseAfter: TYPING_CONFIG.pauseBetweenSignatures
+      });
+    }
+
+    const sign4 = document.querySelector('#sign-4 #sender-signature-name');
+    if (sign4) {
+      typingItems.push({
+        container: document.getElementById('sign-4'),
+        element: sign4,
+        fullText: sign4.textContent.trim(),
+        pauseAfter: TYPING_CONFIG.pauseBeforeTeaser,
+        onComplete: () => {
+          finishTypingSequence();
+        }
+      });
+    }
+  }
+
+  initTypingItems();
+
+  // Typewriter Cursor Element
+  const cursor = document.createElement('span');
+  cursor.className = 'type-cursor';
+  cursor.setAttribute('aria-hidden', 'true');
+
+  function startTypewriter() {
+    state.isTyping = true;
+    let currentItemIdx = 0;
+
+    function typeNextItem() {
+      if (!state.isTyping) return;
+
+      if (currentItemIdx >= typingItems.length) {
+        finishTypingSequence();
+        return;
+      }
+
+      const item = typingItems[currentItemIdx];
+      if (item.container) item.container.classList.add('revealed');
+
+      const chars = Array.from(item.fullText);
+      let charIdx = 0;
+
+      // Clear element and attach text node with cursor
+      item.element.textContent = '';
+      const textNode = document.createTextNode('');
+      item.element.appendChild(textNode);
+      item.element.appendChild(cursor);
+
+      function typeChar() {
+        if (!state.isTyping) return;
+
+        if (charIdx < chars.length) {
+          textNode.nodeValue += chars[charIdx];
+          charIdx++;
+
+          // Smoothly auto-scroll on mobile devices to follow the active text
+          if (TYPING_CONFIG.autoScroll && window.innerWidth <= 768) {
+            const cursorRect = cursor.getBoundingClientRect();
+            if (cursorRect.bottom > window.innerHeight - 70) {
+              window.scrollBy({ top: cursorRect.bottom - (window.innerHeight - 80), behavior: 'smooth' });
+            }
+          }
+
+          state.typingTimeoutId = setTimeout(typeChar, TYPING_CONFIG.speed);
+        } else {
+          // Complete current item
+          if (item.onComplete) item.onComplete();
+
+          currentItemIdx++;
+          state.typingTimeoutId = setTimeout(typeNextItem, item.pauseAfter || 200);
+        }
+      }
+
+      typeChar();
+    }
+
+    typeNextItem();
+  }
+
+  function finishTypingSequence() {
+    state.isTyping = false;
+    if (state.typingTimeoutId) clearTimeout(state.typingTimeoutId);
+    if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
+
+    if (headingFlourish) headingFlourish.classList.add('visible');
+    if (surpriseTeaser) surpriseTeaser.classList.add('revealed');
+    if (skipBtn) skipBtn.classList.add('hidden');
+  }
+
+  // ========================================================
+  // 6. ENVELOPE OPENING & SMOOTH STATIONERY ENTRANCE
   // ========================================================
   function openEnvelope() {
     if (state.isOpening) return;
     state.isOpening = true;
-    state.currentScene = 'unfolding';
+    state.currentScene = 'letter';
 
-    // 1. Start music immediately on tap
-    playMusic();
+    // 1. Ensure background music is playing
+    onFirstUserGesture();
 
     // 2. Burst decorative hearts from envelope position
     const rect = envelopeWrapper.getBoundingClientRect();
-    spawnBurstHearts(rect.left + rect.width / 2, rect.top + rect.height / 2, 24);
+    spawnBurstHearts(rect.left + rect.width / 2, rect.top + rect.height / 2, 28);
 
-    // 3. Show skip button for user convenience
-    skipBtn.classList.remove('hidden');
+    // 3. Show skip button for user convenience during typing
+    if (skipBtn) skipBtn.classList.remove('hidden');
 
-    // 4. Phase 1: Open the flap backward smoothly in 3D
+    // 4. Phase 1: Open flap backward smoothly in 3D
     envelope.classList.add('opening', 'flap-open');
 
-    // 5. Phase 2: ONLY after flap has fully opened (750ms), slide the letter upward out of pocket
+    // 5. Phase 2: Letter insert smoothly glides upward out of envelope
     const tLetter = setTimeout(() => {
       envelope.classList.add('letter-out');
-    }, 750);
+      spawnBurstHearts(rect.left + rect.width / 2, rect.top + 30, 16);
+    }, 650);
     state.animationTimers.push(tLetter);
 
-    // 6. Phase 3: Transition to full stationery paper unfolding once letter has emerged
+    // 6. Phase 3: Transition to full stationery paper with floating elevation entrance
     const tTransition = setTimeout(() => {
-      envelopeScene.style.opacity = '0';
-      envelopeScene.style.transform = 'scale(0.92) translateY(30px)';
+      envelopeScene.classList.add('envelope-exit');
 
-      const tUnfold = setTimeout(() => {
+      const tShowPaper = setTimeout(() => {
         envelopeScene.classList.add('hidden');
         letterScene.classList.remove('hidden');
-        startLetterUnfolding();
-      }, 600);
-      state.animationTimers.push(tUnfold);
-    }, 2100);
+
+        // Trigger gorgeous paper entrance animation
+        requestAnimationFrame(() => {
+          stationeryPaper.classList.add('visible');
+          state.isLetterActive = true;
+
+          const pRect = stationeryPaper.getBoundingClientRect();
+          spawnBurstHearts(pRect.left + pRect.width / 2, pRect.top + 80, 24);
+
+          // Phase 4: Start character-by-character typing after paper settles
+          const tTyping = setTimeout(() => {
+            startTypewriter();
+          }, 650);
+          state.animationTimers.push(tTyping);
+        });
+      }, 500);
+      state.animationTimers.push(tShowPaper);
+    }, 1600);
     state.animationTimers.push(tTransition);
   }
 
@@ -362,90 +546,36 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ========================================================
-  // 6. 3D LETTER UNFOLDING SIMULATION & TEXT REVEAL
-  // ========================================================
-  function startLetterUnfolding() {
-    // Show 3D folding paper simulation
-    unfoldingStage.classList.add('active');
-
-    const t1 = setTimeout(() => {
-      unfoldingStage.classList.add('unfolded');
-
-      // Unfold complete: Reveal actual stationary sheet
-      const t2 = setTimeout(() => {
-        unfoldingStage.style.opacity = '0';
-        stationeryPaper.classList.add('visible');
-
-        const t3 = setTimeout(() => {
-          unfoldingStage.classList.remove('active');
-          state.isUnfolded = true;
-          revealLetterContent();
-        }, 500);
-        state.animationTimers.push(t3);
-      }, 900);
-      state.animationTimers.push(t2);
-    }, 100);
-
-    state.animationTimers.push(t1);
-  }
-
-  function revealLetterContent() {
-    state.isRevealing = true;
-    let delay = 350;
-
-    revealItems.forEach((item, index) => {
-      // Stagger each item gently
-      const timer = setTimeout(() => {
-        item.classList.add('revealed');
-
-        // When the last item (teaser) is reached
-        if (index === revealItems.length - 1) {
-          state.isRevealing = false;
-          // Hide skip button once completely revealed
-          skipBtn.classList.add('hidden');
-        }
-      }, delay);
-
-      state.animationTimers.push(timer);
-      delay += 520; // Natural, romantic cadence
-    });
-  }
-
-  // ========================================================
   // 7. SKIP ANIMATION FEATURE
   // ========================================================
   function skipAnimation() {
-    // Clear all pending transition timeouts
-    state.animationTimers.forEach(t => clearTimeout(t));
+    state.isTyping = false;
+    state.animationTimers.forEach((t) => clearTimeout(t));
     state.animationTimers = [];
+    if (state.typingTimeoutId) clearTimeout(state.typingTimeoutId);
 
-    // Immediately hide envelope and unfolding stage
+    // Immediately display letter scene and stationery sheet
     envelopeScene.classList.add('hidden');
-    unfoldingStage.classList.remove('active');
-    unfoldingStage.style.opacity = '0';
-
-    // Show letter scene and stationery sheet
     letterScene.classList.remove('hidden');
-    letterScene.style.opacity = '1';
     stationeryPaper.classList.add('visible');
 
-    // Instantly reveal all text paragraphs and items
-    revealItems.forEach(item => {
-      item.classList.add('revealed');
+    // Instantly reveal all text and containers
+    typingItems.forEach((item) => {
+      if (item.container) item.container.classList.add('revealed');
+      item.element.textContent = item.fullText;
     });
 
+    finishTypingSequence();
     state.isOpening = true;
-    state.isUnfolded = true;
-    state.isRevealing = false;
-    skipBtn.classList.add('hidden');
-
-    showToast('Letter unfolded ♡');
+    state.isLetterActive = true;
   }
 
-  skipBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    skipAnimation();
-  });
+  if (skipBtn) {
+    skipBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      skipAnimation();
+    });
+  }
 
   // ========================================================
   // 8. FINAL HEART SURPRISE MODAL ❤️
@@ -454,12 +584,10 @@ document.addEventListener('DOMContentLoaded', () => {
     state.currentScene = 'surprise';
     surpriseModal.classList.remove('hidden');
 
-    // Trigger backdrop and heart animation
     requestAnimationFrame(() => {
       surpriseModal.classList.add('active');
     });
 
-    // Burst stardust and hearts
     const rect = surpriseModal.getBoundingClientRect();
     spawnBurstHearts(rect.width / 2, rect.height / 2, 35);
   }
@@ -472,21 +600,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 600);
   }
 
-  openSurpriseBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    openSurpriseModal();
-  });
+  if (openSurpriseBtn) {
+    openSurpriseBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openSurpriseModal();
+    });
+  }
 
-  readAgainBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    closeSurpriseModal();
-    // Smoothly scroll to letter top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
+  if (readAgainBtn) {
+    readAgainBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeSurpriseModal();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 
-  surpriseBackdrop.addEventListener('click', closeSurpriseModal);
+  if (surpriseBackdrop) {
+    surpriseBackdrop.addEventListener('click', closeSurpriseModal);
+  }
 
-  // Keyboard accessibility (Escape key closes surprise modal)
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && state.currentScene === 'surprise') {
       closeSurpriseModal();

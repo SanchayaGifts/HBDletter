@@ -26,24 +26,9 @@
   <!-- Background Music Audio Element -->
   <audio id="bg-music" src="love-song.mp3" preload="auto" loop></audio>
 
-  <!-- Floating Audio Controls (Top Right) -->
+  <!-- Floating Controls (Top Right) -->
   <aside class="floating-controls" aria-label="Controls">
-    <!-- Music Button -->
-    <button id="music-btn" class="glass-btn music-btn" aria-label="Toggle background music" title="Toggle romantic music">
-      <span class="music-icon-wrap" aria-hidden="true">
-        <svg class="music-note-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-          <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-        </svg>
-        <span class="equalizer-bars" aria-hidden="true">
-          <span class="eq-bar bar-1"></span>
-          <span class="eq-bar bar-2"></span>
-          <span class="eq-bar bar-3"></span>
-        </span>
-      </span>
-      <span class="music-btn-label" id="music-status-text">Music Off</span>
-    </button>
-
-    <!-- Skip Animation Button (Appears during unfolding & typing) -->
+    <!-- Skip Animation Button (Appears during letter opening & typing) -->
     <button id="skip-btn" class="glass-btn skip-btn hidden" aria-label="Skip letter animation" title="Show complete letter immediately">
       <span>Skip Animation ⚡</span>
     </button>
@@ -132,18 +117,6 @@
     <section id="letter-scene" class="scene letter-scene hidden" aria-label="Birthday Love Letter">
       <div class="letter-viewport">
 
-        <!-- 3D Unfolding Paper Simulation Layer -->
-        <div class="unfolding-stage" id="unfolding-stage" aria-hidden="true">
-          <div class="paper-fold fold-top" id="fold-top">
-            <div class="paper-crease-shadow"></div>
-          </div>
-          <div class="paper-fold fold-middle" id="fold-middle">
-            <div class="paper-crease-shadow"></div>
-          </div>
-          <div class="paper-fold fold-bottom" id="fold-bottom">
-            <div class="paper-crease-shadow"></div>
-          </div>
-        </div>
 
         <!-- The Physical Stationery Paper Sheet -->
         <article class="stationery-paper" id="stationery-paper">
@@ -211,7 +184,7 @@
               <h1 class="letter-heading" id="letter-heading">
                 Happy Birthday, My Favourite Human! ❤️
               </h1>
-              <div class="heading-flourish" aria-hidden="true">
+              <div class="heading-flourish" id="heading-flourish" aria-hidden="true">
                 <span class="flourish-line"></span>
                 <span class="flourish-heart">❦</span>
                 <span class="flourish-line"></span>

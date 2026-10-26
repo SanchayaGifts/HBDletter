@@ -406,18 +406,20 @@ body {
 /* Letter Insert (Tucked inside, ready to emerge) */
 .envelope-letter-insert {
   position: absolute;
-  top: 15px;
-  left: 20px;
-  right: 20px;
-  height: 200px;
+  top: 12px;
+  bottom: 15px;
+  left: 18px;
+  right: 18px;
+  height: auto;
+  max-height: calc(100% - 27px);
   background: var(--color-cream-paper);
-  border-radius: 6px 6px 0 0;
+  border-radius: 6px 6px 4px 4px;
   z-index: 3;
   box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.25);
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 15px;
+  padding-top: 12px;
   transition: transform 0.9s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.9s ease;
   transform: translateY(0);
 }
@@ -591,6 +593,17 @@ body {
   box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.4);
 }
 
+/* Envelope Exit Animation */
+.envelope-scene.envelope-exit {
+  opacity: 0;
+  transform: scale(0.9) translateY(40px);
+  filter: blur(4px);
+  pointer-events: none;
+  transition: opacity 0.75s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.75s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 0.75s ease;
+}
+
 /* Captions & Subtitles below envelope */
 .envelope-captions {
   display: flex;
@@ -652,7 +665,7 @@ body {
 }
 
 /* ========================================================
-   SCENE TWO & THREE: THE LETTER UNFOLDS & FULL STATIONERY
+   SCENE TWO: THE LETTER ENTRANCE & FULL STATIONERY
    ======================================================== */
 
 .letter-scene {
@@ -673,75 +686,6 @@ body {
   align-items: center;
 }
 
-/* 3D Paper Unfolding Simulation Stage */
-.unfolding-stage {
-  position: absolute;
-  top: 0;
-  width: 100%;
-  height: 600px;
-  display: flex;
-  flex-direction: column;
-  perspective: 1400px;
-  z-index: 50;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-.unfolding-stage.active {
-  opacity: 1;
-}
-
-.paper-fold {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  background-color: var(--color-cream-paper);
-  transform-style: preserve-3d;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-  backface-visibility: hidden;
-}
-
-.paper-crease-shadow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, transparent 15%, transparent 85%, rgba(0, 0, 0, 0.18) 100%);
-  transition: opacity 1s ease;
-}
-
-.fold-top {
-  transform-origin: bottom center;
-  border-radius: var(--border-radius-paper) var(--border-radius-paper) 0 0;
-  transform: rotateX(-175deg);
-  transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.3, 1);
-  z-index: 3;
-}
-
-.fold-middle {
-  z-index: 2;
-}
-
-.fold-bottom {
-  transform-origin: top center;
-  border-radius: 0 0 var(--border-radius-paper) var(--border-radius-paper);
-  transform: rotateX(175deg);
-  transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.3, 1) 0.15s;
-  z-index: 3;
-}
-
-.unfolding-stage.unfolded .fold-top {
-  transform: rotateX(0deg);
-}
-
-.unfolding-stage.unfolded .fold-bottom {
-  transform: rotateX(0deg);
-}
-
-.unfolding-stage.unfolded .paper-crease-shadow {
-  opacity: 0.05;
-}
-
 /* ========================================================
    THE PHYSICAL STATIONERY PAPER SHEET
    ======================================================== */
@@ -756,18 +700,22 @@ body {
   box-shadow:
     0 25px 60px rgba(0, 0, 0, 0.7),
     0 8px 25px rgba(0, 0, 0, 0.4),
-    0 0 40px rgba(128, 0, 32, 0.25),
+    0 0 45px rgba(193, 18, 63, 0.25),
     inset 0 0 80px rgba(212, 175, 55, 0.06),
     inset 0 0 35px rgba(180, 130, 90, 0.12);
   opacity: 0;
-  transform: translateY(30px) scale(0.97);
-  transition: opacity 0.8s var(--transition-smooth), transform 0.8s var(--transition-smooth);
+  transform: translateY(45px) scale(0.92);
+  filter: blur(4px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.85s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
 }
 
 .stationery-paper.visible {
   opacity: 1;
   transform: translateY(0) scale(1);
+  filter: blur(0);
 }
 
 /* Realistic Paper Grain Overlay */
@@ -923,7 +871,14 @@ body {
   gap: 0.75rem;
   margin-top: 0.6rem;
   color: var(--color-romantic-red);
+  opacity: 0;
+  transform: scaleX(0.85);
+  transition: opacity 0.6s ease, transform 0.6s var(--transition-smooth);
+}
+
+.heading-flourish.visible {
   opacity: 0.6;
+  transform: scaleX(1);
 }
 
 .flourish-line {
@@ -934,6 +889,24 @@ body {
 
 .flourish-heart {
   font-size: 1.1rem;
+}
+
+/* Typewriter Cursor */
+.type-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.15em;
+  background-color: var(--color-romantic-red);
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  animation: cursorBlink 0.75s infinite;
+  box-shadow: 0 0 8px rgba(193, 18, 63, 0.7);
+  border-radius: 1px;
+}
+
+@keyframes cursorBlink {
+  0%, 45% { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 
 /* Body Paragraphs */
@@ -1340,6 +1313,19 @@ body {
   .letter-p {
     text-align: left;
   }
+
+  .envelope-letter-insert {
+    top: 10px;
+    bottom: 12px;
+    left: 14px;
+    right: 14px;
+    max-height: calc(100% - 22px);
+    padding-top: 10px;
+  }
+
+  .envelope.letter-out .envelope-letter-insert {
+    transform: translateY(-120px);
+  }
 }
 
 @media (max-width: 480px) {
@@ -1382,8 +1368,17 @@ body {
     width: 100%;
   }
 
+  .envelope-letter-insert {
+    top: 8px;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    max-height: calc(100% - 20px);
+    padding-top: 8px;
+  }
+
   .envelope.letter-out .envelope-letter-insert {
-    transform: translateY(-120px);
+    transform: translateY(-105px);
   }
 }
 
