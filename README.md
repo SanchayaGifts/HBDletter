@@ -6,8 +6,8 @@ This website provides a realistic experience of receiving a romantic love letter
 - **Scene 1**: 3D envelope with a realistic wax seal and heartbeat pulse animation.
 - **Scene 2**: Smooth envelope opening and realistic 3D paper emergence.
 - **Scene 3**: Cream stationery paper unfolding with pressed dried roses, vintage postage stamp, and handwritten message reveal.
-- **Scene 4**: Romantic background music with play/pause controls and automatic Web Audio API fallback.
-- **Scene 5**: Final glowing 3D heart surprise with an emotional closing message.
+- **Scene 4**: Smooth, magical letter-erasing transition where the letter text dissolves like ink turning to shimmering stardust.
+- **Scene 5**: Perfectly symmetrical, fully closed glowing 3D heart surprise centerpiece with an emotional closing message.
 
 ---
 
@@ -39,7 +39,7 @@ This website provides a realistic experience of receiving a romantic love letter
 ## ✏️ How to Customize
 
 ### 1. Change Typing Speed
-Open [script.js](file:///c:/photoshop/gifting%20business/digital%20business1/script.js) and adjust the `TYPING_CONFIG` values at the top:
+Open [script.js](script.js) and adjust the `TYPING_CONFIG` values at the top:
 ```javascript
 const TYPING_CONFIG = {
   speed: 28, // Milliseconds per character (e.g., 15 for fast, 28 for default, 50 for slow)
@@ -49,7 +49,7 @@ const TYPING_CONFIG = {
 ```
 
 ### 2. Customize Names, Letter Content & Date
-All letter text is written in semantic HTML inside [index.html](file:///c:/photoshop/gifting%20business/digital%20business1/index.html):
+All letter text is written in semantic HTML inside [index.html](index.html):
 - **Recipient Greeting**: Edit `To My Favourite Person, ♡` inside `#letter-greeting`
 - **Sender Signature**: Edit `[YOUR NAME] ♡` inside `#sender-signature-name` and `#surprise-sender-name`
 - **Date**: Edit `#letter-date`

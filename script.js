@@ -155,6 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.moveTo(0, s * -3);
         ctx.bezierCurveTo(s * -7, s * -12, s * -15, s * -2, 0, s * 12);
         ctx.bezierCurveTo(s * 15, s * -2, s * 7, s * -12, 0, s * -3);
+        ctx.closePath();
         ctx.fill();
       } else {
         ctx.fillStyle = Math.random() > 0.3 ? '#FFF4E6' : '#FADADD';
@@ -578,8 +579,104 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ========================================================
-  // 8. FINAL HEART SURPRISE MODAL ❤️
+  // 8. ELEGANT LETTER-ERASING TRANSITION & SURPRISE MODAL ❤️
   // ========================================================
+  let isErasing = false;
+
+  function triggerLetterEraseTransition() {
+    if (isErasing || state.currentScene === 'surprise') return;
+    isErasing = true;
+    state.isTyping = false;
+    if (state.typingTimeoutId) clearTimeout(state.typingTimeoutId);
+    if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
+
+    // Disable button to prevent multi-trigger during animation
+    if (openSurpriseBtn) {
+      openSurpriseBtn.disabled = true;
+      openSurpriseBtn.style.pointerEvents = 'none';
+    }
+
+    // 1. Activate shimmer sweep wave across stationery sheet
+    stationeryPaper.classList.add('is-erasing');
+
+    const teaserEl = document.getElementById('surprise-teaser');
+    const signItems = [
+      document.getElementById('sign-4'),
+      document.getElementById('sign-3'),
+      document.getElementById('sign-2'),
+      document.getElementById('sign-1')
+    ].filter(Boolean);
+    const pEls = Array.from(document.querySelectorAll('.letter-paragraphs .letter-p')).reverse();
+    const headingFlourishEl = document.getElementById('heading-flourish');
+    const headingItem = document.getElementById('heading-item');
+    const greetingItem = document.getElementById('greeting-item');
+
+    function emitEraseSparkles(el) {
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        spawnBurstHearts(r.left + r.width / 2, r.top + r.height / 2, 8);
+      }
+    }
+
+    // Stage 0: Teaser fades out gently (t = 0ms)
+    if (teaserEl) {
+      teaserEl.classList.add('erased');
+    }
+
+    // Stage 1: Signature items erase upwards (t = 180ms)
+    setTimeout(() => {
+      signItems.forEach((item, idx) => {
+        setTimeout(() => {
+          item.classList.add('erased');
+          emitEraseSparkles(item);
+        }, idx * 60);
+      });
+    }, 180);
+
+    // Stage 2: Paragraphs dissolve one by one upwards
+    pEls.forEach((p, idx) => {
+      setTimeout(() => {
+        p.classList.add('erased');
+        emitEraseSparkles(p);
+      }, 420 + idx * 280);
+    });
+
+    const paragraphsEndTime = 420 + pEls.length * 280;
+
+    // Stage 3: Title and flourish dissolve
+    setTimeout(() => {
+      if (headingFlourishEl) headingFlourishEl.classList.add('erased');
+      if (headingItem) {
+        headingItem.classList.add('erased');
+        emitEraseSparkles(headingItem);
+      }
+    }, paragraphsEndTime + 90);
+
+    // Stage 4: Greeting dissolves
+    setTimeout(() => {
+      if (greetingItem) {
+        greetingItem.classList.add('erased');
+        emitEraseSparkles(greetingItem);
+      }
+    }, paragraphsEndTime + 260);
+
+    // Stage 5: Paper softens and transitions into glowing heart surprise
+    setTimeout(() => {
+      stationeryPaper.classList.add('paper-fade-out');
+    }, paragraphsEndTime + 500);
+
+    // Stage 6: Open surprise modal with complete heart
+    setTimeout(() => {
+      openSurpriseModal();
+      isErasing = false;
+      if (openSurpriseBtn) {
+        openSurpriseBtn.disabled = false;
+        openSurpriseBtn.style.pointerEvents = '';
+      }
+    }, paragraphsEndTime + 850);
+  }
+
   function openSurpriseModal() {
     state.currentScene = 'surprise';
     surpriseModal.classList.remove('hidden');
@@ -594,16 +691,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function closeSurpriseModal() {
     surpriseModal.classList.remove('active');
+
     setTimeout(() => {
       surpriseModal.classList.add('hidden');
       state.currentScene = 'letter';
+
+      // Reset erasing state & paper appearance
+      stationeryPaper.classList.remove('is-erasing', 'paper-fade-out');
+
+      // Restore all letter reveal items to visible revealed state
+      document.querySelectorAll('.reveal-item').forEach((item) => {
+        item.classList.remove('erased');
+        item.classList.add('revealed');
+      });
+
+      if (headingFlourish) {
+        headingFlourish.classList.remove('erased');
+        headingFlourish.classList.add('visible');
+      }
+
+      // Ensure all letter text is in full view
+      typingItems.forEach((item) => {
+        item.element.textContent = item.fullText;
+      });
+
+      // Smoothly scroll back to top of stationery paper
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 600);
   }
 
   if (openSurpriseBtn) {
     openSurpriseBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      openSurpriseModal();
+      triggerLetterEraseTransition();
     });
   }
 
@@ -611,7 +731,6 @@ document.addEventListener('DOMContentLoaded', () => {
     readAgainBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       closeSurpriseModal();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
 
