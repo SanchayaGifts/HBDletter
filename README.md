@@ -30,7 +30,7 @@ This website provides a realistic experience of receiving a romantic love letter
 ├── index.html       # Semantic HTML structure & editable letter content
 ├── style.css        # Responsive styling, 3D envelope, paper textures & animations
 ├── script.js        # Envelope interaction, unfolding logic, audio control & canvas particles
-├── love-song.mp3    # Romantic background music (Gymnopédie No. 1)
+├── song.mpeg        # Romantic background music
 └── README.md        # Documentation
 ```
 
@@ -54,7 +54,7 @@ All letter text is written in semantic HTML inside [index.html](index.html):
 - **Sender Signature**: Edit `[YOUR NAME] ♡` inside `#sender-signature-name` and `#surprise-sender-name`
 - **Date**: Edit `#letter-date`
 - **Letter Body**: Edit paragraphs inside `<div class="letter-paragraphs">`
-- **Background Music**: Replace `love-song.mp3` with any song of your choice (plays automatically in the background)
+- **Background Music**: Replace `song.mpeg` with any song of your choice (plays automatically in the background)
 
 ---
 
